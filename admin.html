@@ -436,7 +436,7 @@
         }
 
         // CRUD ACTIONS
-       // --- COPIA DESDE AQUÍ ---
+     
         window.openModal = function (type) {
             const targetType = type || (activeTab === 'recetas' ? 'receta' : 'producto');
 
@@ -522,8 +522,16 @@
             if (type === 'producto') {
                 let cat = document.getElementById('p-categoria').value;
                 const isOffer = document.getElementById('p-oferta').checked;
-                if (isOffer && !cat.toLowerCase().includes('oferta')) {
-                    cat += ' - Oferta';
+                
+                // LÓGICA DE CATEGORÍA Y OFERTA CORREGIDA
+                if (isOffer) {
+                    // Si marcaste la casilla y no dice oferta, se lo ponemos
+                    if (!cat.toLowerCase().includes('oferta')) {
+                        cat += ' - Oferta';
+                    }
+                } else {
+                    // SI DESMARCASTE LA CASILLA, limpiamos el texto " - Oferta"
+                    cat = cat.replace(/\s*-\s*Oferta/i, '').replace(/Oferta/i, '').trim();
                 }
 
                 payload = {
@@ -543,12 +551,12 @@
                     tiempo: document.getElementById('r-tiempo').value,
                     porciones: document.getElementById('r-porciones').value,
                     imagen_url: document.getElementById('r-imagen').value,
-                    ingredientes: ing, // Sends as Array [ "a", "b" ] which Supabase stores as text or jsonb
+                    ingredientes: ing,
                     pasos: pasos
                 };
             }
 
-            // SAVE
+            // GUARDAR EN SUPABASE
             try {
                 if (id) {
                     const { error } = await client.from(table).update(payload).eq('id', id);
@@ -558,12 +566,17 @@
                     if (error) throw error;
                 }
                 closeModal();
-                if (type === 'producto') loadProducts(); else loadRecipes();
+                // Recargar datos
+                if (type === 'producto') {
+                    await loadProducts();
+                    renderOffers(); // Forzar render de ofertas
+                } else {
+                    await loadRecipes();
+                }
 
             } catch (err) {
                 alert("Error al guardar: " + err.message);
             }
-
         }
 
         window.deleteItem = async function (table, id) {
@@ -581,4 +594,5 @@
 </body>
 
 </html>
+
 
