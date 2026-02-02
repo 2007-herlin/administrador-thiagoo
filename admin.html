@@ -37,58 +37,52 @@
         }
     </script>
     <style>
-    body {
-        font-family: 'Open Sans', sans-serif;
-        background-color: #f3f4f6;
-    }
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f3f4f6;
+        }
 
-    h1, h2, h3 {
-        font-family: 'Raleway', sans-serif;
-    }
+        h1,
+        h2,
+        h3 {
+            font-family: 'Raleway', sans-serif;
+        }
 
-    .nav-item.active {
-        background-color: #84c225;
-        color: white;
-        font-weight: 700;
-    }
+        .nav-item.active {
+            background-color: #84c225;
+            color: white;
+            font-weight: 700;
+        }
 
-    .nav-item:hover:not(.active) {
-        background-color: #f0fdf4;
-        color: #84c225;
-    }
+        .nav-item:hover:not(.active) {
+            background-color: #f0fdf4;
+            color: #84c225;
+        }
 
-    /* --- MODAL FIX --- */
-    #modal {
-        transition: all 0.3s ease;
-        background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente */
-        display: flex; /* Para centrar el contenido */
-    }
+        /* Modal Transitions */
+        .modal {
+            transition: opacity 0.2s ease-in-out;
+        }
 
-    /* Esta clase es la que hace que el modal desaparezca por completo */
-    .hidden-modal {
-        display: none !important; 
-        opacity: 0;
-        pointer-events: none;
-    }
+        .modal-content {
+            transition: transform 0.2s ease-in-out;
+        }
 
-    .modal-content {
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        transform: scale(1);
-        transition: transform 0.3s ease;
-    }
+        .hidden-modal {
+            opacity: 0;
+            pointer-events: none;
+        }
 
-    .hidden-modal .modal-content {
-        transform: scale(0.9);
-    }
-</style>
+        .hidden-modal .modal-content {
+            transform: scale(0.95);
+        }
+    </style>
 </head>
 
 <body class="text-gray-700 h-screen flex overflow-hidden">
 
     <!-- SIDEBAR -->
-  <aside class="w-64 bg-white border-r border-gray-200 flex-col md:flex hidden z-20 shadow-sm">
+    <aside class="w-64 bg-white border-r border-gray-200 flex-col md:flex hidden z-20 shadow-sm">
         <div class="p-6 border-b border-gray-100 flex items-center gap-2">
             <div class="bg-brand-green text-white p-1 rounded-sm font-black text-xl">T</div>
             <div>
@@ -121,14 +115,19 @@
         </div>
     </aside>
 
-    <div class="md:hidden fixed top-0 w-full bg-brand-green text-white z-20 flex justify-between items-center p-4 shadow-md">
+    <!-- MOBILE HEADER -->
+    <div
+        class="md:hidden fixed top-0 w-full bg-brand-green text-white z-20 flex justify-between items-center p-4 shadow-md">
         <span class="font-black font-heading text-lg">THIAGO ADMIN</span>
-        <button onclick="document.querySelector('aside').classList.toggle('hidden'); document.querySelector('aside').classList.toggle('absolute');"
+        <button
+            onclick="document.querySelector('aside').classList.toggle('hidden'); document.querySelector('aside').classList.toggle('absolute');"
             class="text-2xl"><i class="ph-bold ph-list"></i></button>
     </div>
 
+    <!-- MAIN CONTENT -->
     <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50 pt-16 md:pt-0">
 
+        <!-- TOP DATA BAR -->
         <header class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
             <h2 id="page-title" class="text-2xl font-black font-heading text-brand-dark">Gestión de Productos</h2>
             <button onclick="openModal()"
@@ -137,8 +136,10 @@
             </button>
         </header>
 
+        <!-- CONTENT AREA -->
         <div class="flex-1 overflow-auto p-8">
 
+            <!-- Products Table -->
             <div id="view-productos" class="block">
                 <div class="bg-white rounded-sm border border-gray-200 shadow-sm overflow-x-auto">
                     <table class="w-full min-w-[800px] text-sm text-left">
@@ -151,16 +152,22 @@
                                 <th class="p-4 text-center">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="table-productos" class="divide-y divide-gray-100"></tbody>
+                        <tbody id="table-productos" class="divide-y divide-gray-100">
+                            <!-- JS populated -->
+                        </tbody>
                     </table>
                 </div>
             </div>
 
+            <!-- Offers View -->
             <div id="view-ofertas" class="hidden">
                 <p class="mb-4 text-sm text-gray-500">Gestiona los productos marcados como 'Oferta'.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-ofertas"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-ofertas">
+                    <!-- JS populated -->
+                </div>
             </div>
 
+            <!-- Recipes View -->
             <div id="view-recetas" class="hidden">
                 <div class="bg-white rounded-sm border border-gray-200 shadow-sm overflow-x-auto">
                     <table class="w-full min-w-[800px] text-sm text-left">
@@ -172,7 +179,9 @@
                                 <th class="p-4 text-center">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="table-recetas" class="divide-y divide-gray-100"></tbody>
+                        <tbody id="table-recetas" class="divide-y divide-gray-100">
+                            <!-- JS populated -->
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -180,31 +189,39 @@
         </div>
     </main>
 
-    <div id="modal" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="modal-content bg-white w-full max-w-lg rounded-lg shadow-xl overflow-hidden flex flex-col" style="max-height: 90vh;">
-            
-            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
-                <h3 id="modal-title" class="font-bold text-lg text-gray-800 font-heading">Nuevo Item</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <!-- GENERIC MODAL -->
+    <div id="modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden-modal modal">
+        <div class="bg-white w-full max-w-lg rounded-lg shadow-2xl overflow-hidden modal-content m-4">
+            <div class="bg-brand-dark text-white p-4 flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-lg">Nuevo Item</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i
+                        class="ph-bold ph-x text-xl"></i></button>
             </div>
 
-            <form id="form-entity" class="p-6 overflow-y-auto space-y-4">
+            <form id="form-entity" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
                 <input type="hidden" id="entity-id">
-                <input type="hidden" id="entity-type">
+                <input type="hidden" id="entity-type" value="producto"> <!-- producto | receta -->
 
+                <!-- FIELDS: PRODUCT -->
                 <div id="fields-producto" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nombre</label>
-                        <input type="text" id="p-nombre" class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green">
+                        <input type="text" id="p-nombre"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                            required>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Precio (S/)</label>
-                            <input type="number" step="0.01" id="p-precio" class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green">
+                            <input type="number" step="0.01" id="p-precio"
+                                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                                required>
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
-                            <select id="p-categoria" class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green bg-white">
+                            <select id="p-categoria"
+                                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green bg-white">
                                 <option value="Bebidas">Bebidas</option>
                                 <option value="Abarrotes">Abarrotes</option>
                                 <option value="Frutas">Frutas</option>
@@ -217,25 +234,30 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen (Archivo o URL)</label>
-                        <input type="file" id="p-upload" accept="image/*" class="w-full text-sm mb-2">
-                        <input type="text" id="p-imagen" placeholder="O pega el link (URL) aquí" class="w-full border border-gray-300 rounded-sm p-2 text-sm outline-none focus:border-brand-green">
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen URL</label>
+                        <input type="text" id="p-imagen"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                            required placeholder="https://...">
                     </div>
-                    <div class="flex items-center gap-2 bg-yellow-50 p-2 rounded border border-yellow-100">
-                        <input type="checkbox" id="p-oferta" class="w-4 h-4 text-brand-green rounded border-gray-300 focus:ring-brand-green">
-                        <label for="p-oferta" class="text-sm font-bold text-yellow-700">Marcar como Oferta</label>
+                    <div class="flex items-center gap-2 pt-2">
+                        <input type="checkbox" id="p-oferta"
+                            class="w-4 h-4 text-brand-green rounded border-gray-300 focus:ring-brand-green">
+                        <label for="p-oferta" class="text-sm font-bold text-gray-700">Marcar como Oferta</label>
                     </div>
                 </div>
 
+                <!-- FIELDS: RECETA -->
                 <div id="fields-receta" class="space-y-4 hidden">
                     <div>
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Título Receta</label>
-                        <input type="text" id="r-titulo" class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green">
+                        <input type="text" id="r-titulo"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
-                            <select id="r-categoria" class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green bg-white">
+                            <select id="r-categoria"
+                                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green bg-white">
                                 <option value="Criollo">Criollo</option>
                                 <option value="Postre">Postre</option>
                                 <option value="Bebida">Bebida</option>
@@ -246,42 +268,49 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tiempo</label>
-                                <input type="text" id="r-tiempo" class="w-full border border-gray-300 rounded-sm p-2 text-xs" placeholder="45 min">
+                                <input type="text" id="r-tiempo"
+                                    class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                                    placeholder="Ej. 45 min">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Porciones</label>
-                                <input type="text" id="r-porciones" class="w-full border border-gray-300 rounded-sm p-2 text-xs" placeholder="4 p.">
+                                <input type="text" id="r-porciones"
+                                    class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                                    placeholder="Ej. 4 p.">
                             </div>
                         </div>
                     </div>
                     <div>
-                 <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen (Archivo o URL)</label>
-               <input type="file" id="p-upload" accept="image/*" class="w-full text-sm mb-2">
-              <input type="text" id="p-imagen" placeholder="O pega el link (URL) aquí" 
-               class="w-full border border-gray-300 rounded-sm p-2 text-sm outline-none focus:border-brand-green">
-             <p id="p-img-error" class="text-red-500 text-[10px] mt-1 hidden">Debes subir un archivo o pegar una URL.</p>
-               </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Ingredientes (Comas)</label>
-                        <textarea id="r-ingredientes" rows="2" class="w-full border border-gray-300 rounded-sm p-2 text-sm" placeholder="Ingrediente 1, Ingrediente 2..."></textarea>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen URL</label>
+                        <input type="text" id="r-imagen"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                            placeholder="https://...">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Pasos (Separar con | )</label>
-                        <textarea id="r-pasos" rows="2" class="w-full border border-gray-300 rounded-sm p-2 text-sm" placeholder="Paso 1 | Paso 2..."></textarea>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Ingredientes (Separados por
+                            coma)</label>
+                        <textarea id="r-ingredientes" rows="3"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                            placeholder="Arroz, Pollo, Ajo..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Pasos (Separados por |
+                            )</label>
+                        <textarea id="r-pasos" rows="3"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                            placeholder="Lavar arroz | Cocinar pollo | Servir..."></textarea>
                     </div>
                 </div>
 
-                <div class="pt-4 flex gap-3">
-                    <button type="button" onclick="closeModal()" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-sm font-bold uppercase text-xs">Cancelar</button>
-                    <button type="submit" class="flex-1 bg-brand-green text-white py-3 rounded-sm font-bold uppercase text-xs hover:bg-green-600 transition-colors shadow-lg">
-                        Guardar
-                    </button>
-                </div>
+                <button type="submit"
+                    class="w-full bg-brand-green text-white py-3 rounded-sm font-bold uppercase hover:bg-green-600 transition-colors shadow-lg">
+                    Guardar
+                </button>
             </form>
         </div>
     </div>
 
-    
+
     <script>
         // INIT SUPABASE
         const client = supabase.createClient('https://yvyrbmlzlfrqatxwfemm.supabase.co', 'sb_publishable_eSJ74_4UWZLS-YX3l5RfRQ_NptwqBGG');
@@ -423,34 +452,24 @@
             document.getElementById(`fields-${targetType}`).classList.remove('hidden');
 
             // Req Attributes - CORREGIDO: Excluye el checkbox de ser obligatorio
-          const pInputs = document.querySelectorAll('#fields-producto input:not([type="checkbox"])');
-    const rInputs = document.querySelectorAll('#fields-receta input, #fields-receta textarea');
+            const pInputs = document.querySelectorAll('#fields-producto input:not([type="checkbox"])');
+            const rInputs = document.querySelectorAll('#fields-receta input, #fields-receta textarea');
 
-    if (targetType === 'producto') {
-        pInputs.forEach(i => {
-            // EXCEPCIÓN: Los campos de imagen NO son requeridos nativamente
-            if (i.id === 'p-upload' || i.id === 'p-imagen') {
-                i.required = false;
+            if (targetType === 'producto') {
+                pInputs.forEach(i => i.required = true);
+                rInputs.forEach(i => i.required = false);
+                // Forzamos que el checkbox de oferta nunca sea requerido para poder desmarcarlo
+                document.getElementById('p-oferta').required = false;
             } else {
-                i.required = true;
+                pInputs.forEach(i => i.required = false);
+                rInputs.forEach(i => i.required = true);
             }
-        });
-        rInputs.forEach(i => i.required = false);
-    } else {
-        pInputs.forEach(i => i.required = false);
-        rInputs.forEach(i => {
-            // EXCEPCIÓN: Los campos de imagen NO son requeridos nativamente
-            if (i.id === 'r-upload' || i.id === 'r-imagen') {
-                i.required = false;
-            } else {
-                i.required = true;
-            }
-        });
-    }
 
-    const m = document.getElementById('modal');
-    m.classList.remove('hidden-modal');
-}
+            // Show Modal
+            const m = document.getElementById('modal');
+            m.classList.remove('hidden-modal');
+        }
+
         window.closeModal = function () {
             document.getElementById('modal').classList.add('hidden-modal');
         }
@@ -492,104 +511,74 @@
             }
         }
 
-       // --- 1. FUNCIÓN PARA SUBIR IMÁGENES AL STORAGE ---
-async function uploadImage(file, bucket) {
-    const fileName = `${Date.now()}-${file.name}`;
-    
-    // Subir el archivo
-    const { data, error } = await client.storage
-        .from(bucket)
-        .upload(fileName, file);
+        document.getElementById('form-entity').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('entity-id').value;
+            const type = document.getElementById('entity-type').value;
+            const table = type === 'producto' ? 'productos' : 'recetas';
 
-    if (error) throw error;
+            let payload = {};
 
-    // Obtener la URL pública para guardarla en la tabla
-    const { data: publicUrlData } = client.storage
-        .from(bucket)
-        .getPublicUrl(fileName);
+            if (type === 'producto') {
+                let cat = document.getElementById('p-categoria').value;
+                const isOffer = document.getElementById('p-oferta').checked;
+                
+                // LÓGICA DE CATEGORÍA Y OFERTA CORREGIDA
+                if (isOffer) {
+                    // Si marcaste la casilla y no dice oferta, se lo ponemos
+                    if (!cat.toLowerCase().includes('oferta')) {
+                        cat += ' - Oferta';
+                    }
+                } else {
+                    // SI DESMARCASTE LA CASILLA, limpiamos el texto " - Oferta"
+                    cat = cat.replace(/\s*-\s*Oferta/i, '').replace(/Oferta/i, '').trim();
+                }
 
-    return publicUrlData.publicUrl;
-}
+                payload = {
+                    nombre: document.getElementById('p-nombre').value,
+                    precio: parseFloat(document.getElementById('p-precio').value),
+                    categoria: cat,
+                    imagen: document.getElementById('p-imagen').value
+                };
+            } else {
+                // RECETA
+                const ing = document.getElementById('r-ingredientes').value.split(',').map(s => s.trim()).filter(s => s);
+                const pasos = document.getElementById('r-pasos').value.split('|').map(s => s.trim()).filter(s => s);
 
-// --- 2. EL PROCESO DE GUARDADO (SUBIDA + BASE DE DATOS) ---
-document.getElementById('form-entity').onsubmit = async (e) => {
-    e.preventDefault();
-    const btn = e.submitter;
-    const originalBtnText = btn.innerText;
-    
-    btn.disabled = true;
-    btn.innerText = "Procesando...";
-
-    try {
-        const id = document.getElementById('entity-id').value;
-        const type = document.getElementById('entity-type').value;
-        const table = type === 'producto' ? 'productos' : 'recetas';
-
-        // Lógica de Imagen: Prioriza el archivo de galería, si no, usa el URL de texto
-        let finalImageUrl = document.getElementById(type === 'producto' ? 'p-imagen' : 'r-imagen').value;
-        const fileInput = document.getElementById(type === 'producto' ? 'p-upload' : 'r-upload');
-
-        if (fileInput.files.length > 0) {
-            btn.innerText = "Subiendo imagen...";
-            const bucket = type === 'producto' ? 'fotos_productos' : 'fotos_recetas';
-            finalImageUrl = await uploadImage(fileInput.files[0], bucket);
-        }
-
-        if (!finalImageUrl) {
-            throw new Error("Por favor, selecciona una imagen o pega un URL.");
-        }
-
-        let payload = {};
-        if (type === 'producto') {
-            let cat = document.getElementById('p-categoria').value;
-            const isOffer = document.getElementById('p-oferta').checked;
-            
-            // Validar etiqueta de oferta
-            if (isOffer && !cat.toLowerCase().includes('oferta')) {
-                cat += ' - Oferta';
-            } else if (!isOffer) {
-                cat = cat.replace(/\s*-\s*Oferta/i, '').trim();
+                payload = {
+                    titulo: document.getElementById('r-titulo').value,
+                    categoria: document.getElementById('r-categoria').value,
+                    tiempo: document.getElementById('r-tiempo').value,
+                    porciones: document.getElementById('r-porciones').value,
+                    imagen_url: document.getElementById('r-imagen').value,
+                    ingredientes: ing,
+                    pasos: pasos
+                };
             }
 
-            payload = {
-                nombre: document.getElementById('p-nombre').value,
-                precio: parseFloat(document.getElementById('p-precio').value),
-                categoria: cat,
-                imagen: finalImageUrl 
-            };
-        } else {
-            const ing = document.getElementById('r-ingredientes').value.split(',').map(s => s.trim()).filter(s => s);
-            const pasos = document.getElementById('r-pasos').value.split('|').map(s => s.trim()).filter(s => s);
-            
-            payload = {
-                titulo: document.getElementById('r-titulo').value,
-                categoria: document.getElementById('r-categoria').value,
-                tiempo: document.getElementById('r-tiempo').value,
-                porciones: document.getElementById('r-porciones').value,
-                imagen_url: finalImageUrl,
-                ingredientes: ing,
-                pasos: pasos
-            };
+            // GUARDAR EN SUPABASE
+            try {
+                if (id) {
+                    const { error } = await client.from(table).update(payload).eq('id', id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await client.from(table).insert([payload]);
+                    if (error) throw error;
+                }
+                closeModal();
+                // Recargar datos
+                if (type === 'producto') {
+                    await loadProducts();
+                    renderOffers(); // Forzar render de ofertas
+                } else {
+                    await loadRecipes();
+                }
+
+            } catch (err) {
+                alert("Error al guardar: " + err.message);
+            }
         }
 
-        // GUARDAR O ACTUALIZAR
-        const { error } = id 
-            ? await client.from(table).update(payload).eq('id', id)
-            : await client.from(table).insert([payload]);
-
-        if (error) throw error;
-
-        closeModal();
-        // Recargar las tablas para ver los cambios
-        if (type === 'producto') await loadProducts(); else await loadRecipes();
-
-    } catch (err) {
-        alert("Error: " + err.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = originalBtnText;
-    }
-};
         window.deleteItem = async function (table, id) {
             if (!confirm("¿Eliminar este item permanentemente?")) return;
             try {
@@ -605,11 +594,3 @@ document.getElementById('form-entity').onsubmit = async (e) => {
 </body>
 
 </html>
-
-
-
-
-
-
-
-
