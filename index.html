@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Bodega Thiago</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Raleway:wght@700;900&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Open Sans', 'sans-serif'],
+                        heading: ['Raleway', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            green: '#84c225',
+                            dark: '#222222',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 h-screen flex items-center justify-center p-4">
+
+    <!-- LOGIN CARD -->
+    <div class="bg-white rounded-sm shadow-xl w-full max-w-md overflow-hidden relative group">
+        <!-- Top Bar -->
+        <div class="h-1 w-full bg-brand-green"></div>
+
+        <div class="p-8 md:p-10">
+            <!-- Logo area -->
+            <div class="text-center mb-8">
+                <div class="inline-block relative">
+                    <div
+                        class="bg-brand-dark text-white p-3 rounded-sm font-black text-4xl tracking-tighter shadow-lg mb-2 inline-block">
+                        T</div>
+                    <div class="bg-brand-green absolute -bottom-1 -right-1 w-3 h-3 rounded-full animate-ping"></div>
+                </div>
+                <h1 class="font-heading font-black text-2xl text-gray-800 tracking-tight mt-2">BODEGA THIAGO</h1>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Panel Administrativo</p>
+            </div>
+
+            <!-- Form -->
+            <form id="login-form" class="space-y-6">
+                <!-- Error Alert -->
+                <div id="error-msg"
+                    class="hidden bg-red-50 text-red-500 text-xs font-bold p-3 rounded-sm border border-red-100 flex items-center gap-2">
+                    <i class="ph-bold ph-warning-circle text-lg"></i>
+                    <span>Credenciales incorrectas.</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Usuario</label>
+                    <div class="relative group-input">
+                        <i
+                            class="ph-fill ph-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-green transition-colors"></i>
+                        <input type="text" id="usuario" required
+                            class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-sm font-bold text-gray-700 outline-none focus:border-brand-green focus:bg-white transition-all placeholder-gray-300"
+                            placeholder="Ingrese su usuario...">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">DNI
+                        (Contraseña)</label>
+                    <div class="relative group-input">
+                        <i
+                            class="ph-fill ph-identification-card absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-green transition-colors"></i>
+                        <input type="password" id="dni" required
+                            class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-sm font-bold text-gray-700 outline-none focus:border-brand-green focus:bg-white transition-all placeholder-gray-300"
+                            placeholder="Ingrese su DNI...">
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-login"
+                    class="w-full bg-brand-dark text-white font-heading font-bold uppercase tracking-wider py-4 rounded-sm hover:bg-black transition-all hover:shadow-lg active:scale-95 flex justify-center items-center gap-2 group">
+                    <span>Ingresar</span>
+                    <i class="ph-bold ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 py-3 text-center border-t border-gray-100">
+            <p class="text-[10px] text-gray-400 font-bold">&copy; 2026 Admin Panel Security</p>
+        </div>
+    </div>
+
+    <script>
+        // SUPABASE CONFIG
+        const client = supabase.createClient('https://yvyrbmlzlfrqatxwfemm.supabase.co', 'sb_publishable_eSJ74_4UWZLS-YX3l5RfRQ_NptwqBGG');
+
+        // Check if already logged in
+        if (sessionStorage.getItem('thiago_admin_session')) {
+            window.location.href = 'admin.html';
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login');
+            const errorMsg = document.getElementById('error-msg');
+            const user = document.getElementById('usuario').value.trim();
+            const dni = document.getElementById('dni').value.trim();
+
+            // Reset UI
+            errorMsg.classList.add('hidden');
+            btn.innerHTML = '<i class="ph-bold ph-circle-notch animate-spin text-lg"></i> Validando...';
+            btn.disabled = true;
+
+            try {
+                // Query 'usuarios' table
+                // Expecting exact match on 'usuario' and 'dni'
+                const { data, error } = await client
+                    .from('usuarios')
+                    .select('*')
+                    .eq('usuario', user)
+                    .eq('dni', dni)
+                    .single();
+
+                if (error || !data) {
+                    throw new Error("Credenciales inválidas");
+                }
+
+                // SUCCESS
+                sessionStorage.setItem('thiago_admin_session', JSON.stringify({
+                    id: data.id,
+                    user: data.usuario,
+                    loginTime: new Date().toISOString()
+                }));
+
+                btn.innerHTML = '<i class="ph-bold ph-check text-lg"></i> ¡Éxito!';
+                btn.classList.replace('bg-brand-dark', 'bg-brand-green');
+
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 800);
+
+            } catch (err) {
+                console.error(err);
+                btn.innerHTML = '<span>Ingresar</span><i class="ph-bold ph-arrow-right group-hover:translate-x-1 transition-transform"></i>';
+                btn.classList.add('bg-brand-dark'); // restore color just in case
+                btn.disabled = false;
+                errorMsg.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Thiago Flipmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Raleway:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <script>
+        // --- SECURITY CHECK ---
+        if (!sessionStorage.getItem('thiago_admin_session')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Open Sans', 'sans-serif'],
+                        heading: ['Raleway', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            green: '#84c225',
+                            dark: '#222222',
+                            gray: '#f5f5f5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Raleway', sans-serif;
+        }
+
+        .nav-item.active {
+            background-color: #84c225;
+            color: white;
+            font-weight: 700;
+        }
+
+        .nav-item:hover:not(.active) {
+            background-color: #f0fdf4;
+            color: #84c225;
+        }
+
+        /* Modal Transitions */
+        .modal {
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .modal-content {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .hidden-modal {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .hidden-modal .modal-content {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+
+<body class="text-gray-700 h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex-col md:flex hidden z-20 shadow-sm">
+        <div class="p-6 border-b border-gray-100 flex items-center gap-2">
+            <div class="bg-brand-green text-white p-1 rounded-sm font-black text-xl">T</div>
+            <div>
+                <h1 class="font-heading font-black text-xl leading-none">THIAGO</h1>
+                <span class="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Admin Panel</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-2">
+            <button onclick="switchTab('productos')" id="nav-productos"
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-md text-sm transition-colors text-gray-500 active">
+                <i class="ph-bold ph-package text-lg"></i> Productos
+            </button>
+            <button onclick="switchTab('ofertas')" id="nav-ofertas"
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-md text-sm transition-colors text-gray-500">
+                <i class="ph-bold ph-tag text-lg"></i> Ofertas
+            </button>
+            <button onclick="switchTab('recetas')" id="nav-recetas"
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-md text-sm transition-colors text-gray-500">
+                <i class="ph-bold ph-cooking-pot text-lg"></i> Recetas
+            </button>
+            <a href="../cliente/index.html" target="_blank"
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-md text-sm transition-colors text-gray-500 mt-8 hover:bg-gray-50">
+                <i class="ph-bold ph-storefront text-lg"></i> Ver Tienda
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-gray-100 text-xs text-gray-400 text-center">
+            &copy; 2026 Admin System
+        </div>
+    </aside>
+
+    <!-- MOBILE HEADER -->
+    <div
+        class="md:hidden fixed top-0 w-full bg-brand-green text-white z-20 flex justify-between items-center p-4 shadow-md">
+        <span class="font-black font-heading text-lg">THIAGO ADMIN</span>
+        <button
+            onclick="document.querySelector('aside').classList.toggle('hidden'); document.querySelector('aside').classList.toggle('absolute');"
+            class="text-2xl"><i class="ph-bold ph-list"></i></button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50 pt-16 md:pt-0">
+
+        <!-- TOP DATA BAR -->
+        <header class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
+            <h2 id="page-title" class="text-2xl font-black font-heading text-brand-dark">Gestión de Productos</h2>
+            <button onclick="openModal()"
+                class="bg-brand-dark text-white px-6 py-2 rounded-sm font-bold text-sm hover:bg-brand-green transition-colors flex items-center gap-2">
+                <i class="ph-bold ph-plus"></i> <span id="add-btn-text">Nuevo Producto</span>
+            </button>
+        </header>
+
+        <!-- CONTENT AREA -->
+        <div class="flex-1 overflow-auto p-8">
+
+            <!-- Products Table -->
+            <div id="view-productos" class="block">
+                <div class="bg-white rounded-sm border border-gray-200 shadow-sm overflow-hidden">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 text-gray-500 font-bold border-b border-gray-100">
+                            <tr>
+                                <th class="p-4">Imagen</th>
+                                <th class="p-4">Nombre</th>
+                                <th class="p-4">Categoría</th>
+                                <th class="p-4">Precio</th>
+                                <th class="p-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-productos" class="divide-y divide-gray-100">
+                            <!-- JS populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Offers View -->
+            <div id="view-ofertas" class="hidden">
+                <p class="mb-4 text-sm text-gray-500">Gestiona los productos marcados como 'Oferta'.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-ofertas">
+                    <!-- JS populated -->
+                </div>
+            </div>
+
+            <!-- Recipes View -->
+            <div id="view-recetas" class="hidden">
+                <div class="bg-white rounded-sm border border-gray-200 shadow-sm overflow-hidden">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 text-gray-500 font-bold border-b border-gray-100">
+                            <tr>
+                                <th class="p-4">Imagen</th>
+                                <th class="p-4">Título</th>
+                                <th class="p-4">Tipo</th>
+                                <th class="p-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-recetas" class="divide-y divide-gray-100">
+                            <!-- JS populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- GENERIC MODAL -->
+    <div id="modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden-modal modal">
+        <div class="bg-white w-full max-w-lg rounded-lg shadow-2xl overflow-hidden modal-content m-4">
+            <div class="bg-brand-dark text-white p-4 flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-lg">Nuevo Item</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i
+                        class="ph-bold ph-x text-xl"></i></button>
+            </div>
+
+            <form id="form-entity" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <input type="hidden" id="entity-id">
+                <input type="hidden" id="entity-type" value="producto"> <!-- producto | receta -->
+
+                <!-- FIELDS: PRODUCT -->
+                <div id="fields-producto" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nombre</label>
+                        <input type="text" id="p-nombre"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                            required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Precio (S/)</label>
+                            <input type="number" step="0.01" id="p-precio"
+                                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
+                            <select id="p-categoria"
+                                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green bg-white">
+                                <option value="Bebidas">Bebidas</option>
+                                <option value="Abarrotes">Abarrotes</option>
+                                <option value="Frutas">Frutas</option>
+                                <option value="Carnes">Carnes</option>
+                                <option value="Snacks">Snacks</option>
+                                <option value="Limpieza">Limpieza</option>
+                                <option value="Hogar">Hogar</option>
+                                <option value="Otros">Otros</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen URL</label>
+                        <input type="text" id="p-imagen"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                            required placeholder="https://...">
+                    </div>
+                    <div class="flex items-center gap-2 pt-2">
+                        <input type="checkbox" id="p-oferta"
+                            class="w-4 h-4 text-brand-green rounded border-gray-300 focus:ring-brand-green">
+                        <label for="p-oferta" class="text-sm font-bold text-gray-700">Marcar como Oferta</label>
+                    </div>
+                </div>
+
+                <!-- FIELDS: RECETA -->
+                <div id="fields-receta" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Título Receta</label>
+                        <input type="text" id="r-titulo"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
+                            <select id="r-categoria"
+                                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green bg-white">
+                                <option value="Criollo">Criollo</option>
+                                <option value="Postre">Postre</option>
+                                <option value="Bebida">Bebida</option>
+                                <option value="Marino">Marino</option>
+                                <option value="Panadería">Panadería</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tiempo</label>
+                                <input type="text" id="r-tiempo"
+                                    class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                                    placeholder="Ej. 45 min">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Porciones</label>
+                                <input type="text" id="r-porciones"
+                                    class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                                    placeholder="Ej. 4 p.">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen URL</label>
+                        <input type="text" id="r-imagen"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                            placeholder="https://...">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Ingredientes (Separados por
+                            coma)</label>
+                        <textarea id="r-ingredientes" rows="3"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                            placeholder="Arroz, Pollo, Ajo..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Pasos (Separados por |
+                            )</label>
+                        <textarea id="r-pasos" rows="3"
+                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                            placeholder="Lavar arroz | Cocinar pollo | Servir..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-brand-green text-white py-3 rounded-sm font-bold uppercase hover:bg-green-600 transition-colors shadow-lg">
+                    Guardar
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // INIT SUPABASE
+        const client = supabase.createClient('https://yvyrbmlzlfrqatxwfemm.supabase.co', 'sb_publishable_eSJ74_4UWZLS-YX3l5RfRQ_NptwqBGG');
+
+        // STATE
+        let activeTab = 'productos';
+        let cachedProducts = [];
+        let cachedRecipes = [];
+
+        // ON LOAD
+        window.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            loadRecipes();
+        });
+
+        // TABS
+        window.switchTab = function (tab) {
+            activeTab = tab;
+
+            // Nav UI
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-${tab}`).classList.add('active');
+
+            // Views
+            document.getElementById('view-productos').classList.add('hidden');
+            document.getElementById('view-ofertas').classList.add('hidden');
+            document.getElementById('view-recetas').classList.add('hidden');
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+
+            // Titles & Btns
+            const titleMap = {
+                'productos': 'Gestión de Productos',
+                'ofertas': 'Gestión de Ofertas',
+                'recetas': 'Libro de Recetas'
+            };
+            const btnMap = {
+                'productos': 'Nuevo Producto',
+                'ofertas': 'Añadir Oferta',
+                'recetas': 'Nueva Receta'
+            };
+            document.getElementById('page-title').innerText = titleMap[tab];
+            document.getElementById('add-btn-text').innerText = btnMap[tab];
+
+            // Refresh data if needed
+            if (tab === 'ofertas') renderOffers();
+        }
+
+        // LOADERS
+        async function loadProducts() {
+            const { data, error } = await client.from('productos').select('*').order('id', { ascending: false });
+            if (error) return console.error(error);
+            cachedProducts = data;
+            renderProducts();
+            renderOffers();
+        }
+
+        async function loadRecipes() {
+            const { data, error } = await client.from('recetas').select('*').order('id', { ascending: false });
+            if (error) {
+                console.warn("Tabla 'recetas' no encontrada o vacía. Creando mockup local si falla.");
+                // If table doesn't exist, we might fail here. For now handle graceful empty.
+                cachedRecipes = [];
+            } else {
+                cachedRecipes = data;
+            }
+            renderRecipes();
+        }
+
+        // RENDERERS
+        function renderProducts() {
+            const tbody = document.getElementById('table-productos');
+            tbody.innerHTML = cachedProducts.map(p => `
+                <tr class="hover:bg-gray-50 border-b border-gray-100 group">
+                    <td class="p-4"><img src="${p.imagen}" class="w-10 h-10 object-contain bg-white border border-gray-200 rounded-sm"></td>
+                    <td class="p-4 font-bold text-gray-800">${p.nombre}</td>
+                    <td class="p-4 text-xs uppercase tracking-wide text-gray-500">${p.categoria}</td>
+                    <td class="p-4 font-mono font-bold text-brand-green">S/ ${parseFloat(p.precio).toFixed(2)}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="editItem('producto', ${p.id})" class="text-blue-500 hover:text-blue-700 px-2"><i class="ph-bold ph-pencil-simple"></i></button>
+                        <button onclick="deleteItem('productos', ${p.id})" class="text-red-400 hover:text-red-600 px-2"><i class="ph-bold ph-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderOffers() {
+            const container = document.getElementById('grid-ofertas');
+            const offers = cachedProducts.filter(p => p.categoria.toLowerCase().includes('oferta'));
+
+            if (offers.length === 0) {
+                container.innerHTML = '<p class="col-span-full text-center text-gray-400 py-8">No hay ofertas activas.</p>';
+                return;
+            }
+
+            container.innerHTML = offers.map(p => `
+                <div class="bg-white p-4 rounded-sm border border-brand-green border-l-4 shadow-sm relative group">
+                    <div class="flex gap-4">
+                        <img src="${p.imagen}" class="w-16 h-16 object-contain">
+                        <div>
+                            <h4 class="font-bold text-gray-800">${p.nombre}</h4>
+                            <p class="text-xs text-gray-500">${p.categoria}</p>
+                            <p class="font-black text-brand-green mt-1">S/ ${parseFloat(p.precio).toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <button onclick="editItem('producto', ${p.id})" class="absolute top-2 right-2 text-gray-300 hover:text-brand-dark"><i class="ph-bold ph-pencil-simple"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function renderRecipes() {
+            const tbody = document.getElementById('table-recetas');
+            tbody.innerHTML = cachedRecipes.map(r => `
+                <tr class="hover:bg-gray-50 border-b border-gray-100 group">
+                    <td class="p-4"><img src="${r.imagen_url}" class="w-10 h-10 object-cover rounded-sm"></td>
+                    <td class="p-4 font-bold text-gray-800">${r.titulo}</td>
+                    <td class="p-4 text-xs uppercase text-gray-500">${r.categoria || 'General'}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="editItem('receta', ${r.id})" class="text-blue-500 hover:text-blue-700 px-2"><i class="ph-bold ph-pencil-simple"></i></button>
+                        <button onclick="deleteItem('recetas', ${r.id})" class="text-red-400 hover:text-red-600 px-2"><i class="ph-bold ph-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // CRUD ACTIONS
+        window.openModal = function (type) {
+            const targetType = type || (activeTab === 'recetas' ? 'receta' : 'producto');
+
+            // Reset Form
+            document.getElementById('form-entity').reset();
+            document.getElementById('entity-id').value = '';
+            document.getElementById('entity-type').value = targetType;
+            document.getElementById('modal-title').innerText = targetType === 'receta' ? 'Nueva Receta' : 'Nuevo Producto';
+
+            // Show Fields
+            document.getElementById('fields-producto').classList.add('hidden');
+            document.getElementById('fields-receta').classList.add('hidden');
+            document.getElementById(`fields-${targetType}`).classList.remove('hidden');
+
+            // Req Attributes
+            const pInputs = document.querySelectorAll('#fields-producto input');
+            const rInputs = document.querySelectorAll('#fields-receta input');
+
+            if (targetType === 'producto') {
+                pInputs.forEach(i => i.required = true);
+                rInputs.forEach(i => i.required = false);
+            } else {
+                pInputs.forEach(i => i.required = false);
+                rInputs.forEach(i => i.required = true);
+            }
+
+            // Show Modal
+            const m = document.getElementById('modal');
+            m.classList.remove('hidden-modal');
+        }
+
+        window.closeModal = function () {
+            document.getElementById('modal').classList.add('hidden-modal');
+        }
+
+        window.editItem = function (type, id) {
+            openModal(type);
+            document.getElementById('modal-title').innerText = type === 'receta' ? 'Editar Receta' : 'Editar Producto';
+            document.getElementById('entity-id').value = id;
+
+            if (type === 'producto') {
+                const item = cachedProducts.find(p => p.id === id);
+                document.getElementById('p-nombre').value = item.nombre;
+                document.getElementById('p-precio').value = item.precio;
+                document.getElementById('p-imagen').value = item.imagen;
+
+                // Handle Category/Offer
+                let cat = item.categoria;
+                const isOffer = cat.toLowerCase().includes('oferta');
+                if (isOffer) {
+                    document.getElementById('p-oferta').checked = true;
+                    cat = cat.replace(/\s*-\s*Oferta/i, '').replace(/Oferta/i, '').trim();
+                } else {
+                    document.getElementById('p-oferta').checked = false;
+                }
+                document.getElementById('p-categoria').value = cat || 'Otros';
+
+            } else {
+                const item = cachedRecipes.find(r => r.id === id);
+                document.getElementById('r-titulo').value = item.titulo;
+                document.getElementById('r-categoria').value = item.categoria;
+                document.getElementById('r-tiempo').value = item.tiempo;
+                document.getElementById('r-porciones').value = item.porciones;
+                document.getElementById('r-imagen').value = item.imagen_url;
+
+                // Arrays to String
+                document.getElementById('r-ingredientes').value = Array.isArray(item.ingredientes) ? item.ingredientes.join(', ') : (item.ingredientes || '');
+                document.getElementById('r-pasos').value = Array.isArray(item.pasos) ? item.pasos.join(' | ') : (item.pasos || '');
+            }
+        }
+
+        document.getElementById('form-entity').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('entity-id').value;
+            const type = document.getElementById('entity-type').value;
+            const table = type === 'producto' ? 'productos' : 'recetas';
+
+            let payload = {};
+
+            if (type === 'producto') {
+                let cat = document.getElementById('p-categoria').value;
+                const isOffer = document.getElementById('p-oferta').checked;
+                if (isOffer && !cat.toLowerCase().includes('oferta')) {
+                    cat += ' - Oferta';
+                }
+
+                payload = {
+                    nombre: document.getElementById('p-nombre').value,
+                    precio: parseFloat(document.getElementById('p-precio').value),
+                    categoria: cat,
+                    imagen: document.getElementById('p-imagen').value
+                };
+            } else {
+                // RECETA
+                const ing = document.getElementById('r-ingredientes').value.split(',').map(s => s.trim()).filter(s => s);
+                const pasos = document.getElementById('r-pasos').value.split('|').map(s => s.trim()).filter(s => s);
+
+                payload = {
+                    titulo: document.getElementById('r-titulo').value,
+                    categoria: document.getElementById('r-categoria').value,
+                    tiempo: document.getElementById('r-tiempo').value,
+                    porciones: document.getElementById('r-porciones').value,
+                    imagen_url: document.getElementById('r-imagen').value,
+                    ingredientes: ing, // Sends as Array [ "a", "b" ] which Supabase stores as text or jsonb
+                    pasos: pasos
+                };
+            }
+
+            // SAVE
+            try {
+                if (id) {
+                    const { error } = await client.from(table).update(payload).eq('id', id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await client.from(table).insert([payload]);
+                    if (error) throw error;
+                }
+                closeModal();
+                if (type === 'producto') loadProducts(); else loadRecipes();
+
+            } catch (err) {
+                alert("Error al guardar: " + err.message);
+            }
+
+        }
+
+        window.deleteItem = async function (table, id) {
+            if (!confirm("¿Eliminar este item permanentemente?")) return;
+            try {
+                const { error } = await client.from(table).delete().eq('id', id);
+                if (error) throw error;
+                if (table === 'productos') loadProducts(); else loadRecipes();
+            } catch (err) {
+                alert("Error al eliminar: " + err.message);
+            }
+        }
+
+    </script>
+</body>
+
+</html>
