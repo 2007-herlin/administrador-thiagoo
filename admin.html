@@ -280,6 +280,8 @@
             </form>
         </div>
     </div>
+
+    
     <script>
         // INIT SUPABASE
         const client = supabase.createClient('https://yvyrbmlzlfrqatxwfemm.supabase.co', 'sb_publishable_eSJ74_4UWZLS-YX3l5RfRQ_NptwqBGG');
@@ -421,24 +423,34 @@
             document.getElementById(`fields-${targetType}`).classList.remove('hidden');
 
             // Req Attributes - CORREGIDO: Excluye el checkbox de ser obligatorio
-            const pInputs = document.querySelectorAll('#fields-producto input:not([type="checkbox"])');
-            const rInputs = document.querySelectorAll('#fields-receta input, #fields-receta textarea');
+          const pInputs = document.querySelectorAll('#fields-producto input:not([type="checkbox"])');
+    const rInputs = document.querySelectorAll('#fields-receta input, #fields-receta textarea');
 
-            if (targetType === 'producto') {
-                pInputs.forEach(i => i.required = true);
-                rInputs.forEach(i => i.required = false);
-                // Forzamos que el checkbox de oferta nunca sea requerido para poder desmarcarlo
-                document.getElementById('p-oferta').required = false;
+    if (targetType === 'producto') {
+        pInputs.forEach(i => {
+            // EXCEPCIÓN: Los campos de imagen NO son requeridos nativamente
+            if (i.id === 'p-upload' || i.id === 'p-imagen') {
+                i.required = false;
             } else {
-                pInputs.forEach(i => i.required = false);
-                rInputs.forEach(i => i.required = true);
+                i.required = true;
             }
+        });
+        rInputs.forEach(i => i.required = false);
+    } else {
+        pInputs.forEach(i => i.required = false);
+        rInputs.forEach(i => {
+            // EXCEPCIÓN: Los campos de imagen NO son requeridos nativamente
+            if (i.id === 'r-upload' || i.id === 'r-imagen') {
+                i.required = false;
+            } else {
+                i.required = true;
+            }
+        });
+    }
 
-            // Show Modal
-            const m = document.getElementById('modal');
-            m.classList.remove('hidden-modal');
-        }
-
+    const m = document.getElementById('modal');
+    m.classList.remove('hidden-modal');
+}
         window.closeModal = function () {
             document.getElementById('modal').classList.add('hidden-modal');
         }
@@ -593,6 +605,7 @@ document.getElementById('form-entity').onsubmit = async (e) => {
 </body>
 
 </html>
+
 
 
 
