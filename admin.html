@@ -88,7 +88,7 @@
 <body class="text-gray-700 h-screen flex overflow-hidden">
 
     <!-- SIDEBAR -->
-    <aside class="w-64 bg-white border-r border-gray-200 flex-col md:flex hidden z-20 shadow-sm">
+  <aside class="w-64 bg-white border-r border-gray-200 flex-col md:flex hidden z-20 shadow-sm">
         <div class="p-6 border-b border-gray-100 flex items-center gap-2">
             <div class="bg-brand-green text-white p-1 rounded-sm font-black text-xl">T</div>
             <div>
@@ -121,19 +121,14 @@
         </div>
     </aside>
 
-    <!-- MOBILE HEADER -->
-    <div
-        class="md:hidden fixed top-0 w-full bg-brand-green text-white z-20 flex justify-between items-center p-4 shadow-md">
+    <div class="md:hidden fixed top-0 w-full bg-brand-green text-white z-20 flex justify-between items-center p-4 shadow-md">
         <span class="font-black font-heading text-lg">THIAGO ADMIN</span>
-        <button
-            onclick="document.querySelector('aside').classList.toggle('hidden'); document.querySelector('aside').classList.toggle('absolute');"
+        <button onclick="document.querySelector('aside').classList.toggle('hidden'); document.querySelector('aside').classList.toggle('absolute');"
             class="text-2xl"><i class="ph-bold ph-list"></i></button>
     </div>
 
-    <!-- MAIN CONTENT -->
     <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50 pt-16 md:pt-0">
 
-        <!-- TOP DATA BAR -->
         <header class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
             <h2 id="page-title" class="text-2xl font-black font-heading text-brand-dark">Gestión de Productos</h2>
             <button onclick="openModal()"
@@ -142,10 +137,8 @@
             </button>
         </header>
 
-        <!-- CONTENT AREA -->
         <div class="flex-1 overflow-auto p-8">
 
-            <!-- Products Table -->
             <div id="view-productos" class="block">
                 <div class="bg-white rounded-sm border border-gray-200 shadow-sm overflow-x-auto">
                     <table class="w-full min-w-[800px] text-sm text-left">
@@ -158,22 +151,16 @@
                                 <th class="p-4 text-center">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="table-productos" class="divide-y divide-gray-100">
-                            <!-- JS populated -->
-                        </tbody>
+                        <tbody id="table-productos" class="divide-y divide-gray-100"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Offers View -->
             <div id="view-ofertas" class="hidden">
                 <p class="mb-4 text-sm text-gray-500">Gestiona los productos marcados como 'Oferta'.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-ofertas">
-                    <!-- JS populated -->
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-ofertas"></div>
             </div>
 
-            <!-- Recipes View -->
             <div id="view-recetas" class="hidden">
                 <div class="bg-white rounded-sm border border-gray-200 shadow-sm overflow-x-auto">
                     <table class="w-full min-w-[800px] text-sm text-left">
@@ -185,9 +172,7 @@
                                 <th class="p-4 text-center">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="table-recetas" class="divide-y divide-gray-100">
-                            <!-- JS populated -->
-                        </tbody>
+                        <tbody id="table-recetas" class="divide-y divide-gray-100"></tbody>
                     </table>
                 </div>
             </div>
@@ -195,8 +180,7 @@
         </div>
     </main>
 
-    <!-- GENERIC MODAL -->
-   <div id="modal" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div id="modal" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="modal-content bg-white w-full max-w-lg rounded-lg shadow-xl overflow-hidden flex flex-col" style="max-height: 90vh;">
             
             <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
@@ -277,11 +261,11 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Ingredientes (Comas)</label>
-                        <textarea id="r-ingredientes" rows="2" class="w-full border border-gray-300 rounded-sm p-2 text-sm"></textarea>
+                        <textarea id="r-ingredientes" rows="2" class="w-full border border-gray-300 rounded-sm p-2 text-sm" placeholder="Ingrediente 1, Ingrediente 2..."></textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Pasos (Separar con | )</label>
-                        <textarea id="r-pasos" rows="2" class="w-full border border-gray-300 rounded-sm p-2 text-sm"></textarea>
+                        <textarea id="r-pasos" rows="2" class="w-full border border-gray-300 rounded-sm p-2 text-sm" placeholder="Paso 1 | Paso 2..."></textarea>
                     </div>
                 </div>
 
@@ -607,6 +591,7 @@ document.getElementById('form-entity').onsubmit = async (e) => {
 </body>
 
 </html>
+
 
 
 
