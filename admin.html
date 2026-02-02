@@ -255,10 +255,12 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen de Receta</label>
-                        <input type="file" id="r-upload" accept="image/*" class="w-full text-sm mb-2">
-                        <input type="text" id="r-imagen" placeholder="URL de imagen" class="w-full border border-gray-300 rounded-sm p-2 text-sm outline-none focus:border-brand-green">
-                    </div>
+                 <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen (Archivo o URL)</label>
+               <input type="file" id="p-upload" accept="image/*" class="w-full text-sm mb-2">
+              <input type="text" id="p-imagen" placeholder="O pega el link (URL) aquí" 
+               class="w-full border border-gray-300 rounded-sm p-2 text-sm outline-none focus:border-brand-green">
+             <p id="p-img-error" class="text-red-500 text-[10px] mt-1 hidden">Debes subir un archivo o pegar una URL.</p>
+               </div>
                     <div>
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Ingredientes (Comas)</label>
                         <textarea id="r-ingredientes" rows="2" class="w-full border border-gray-300 rounded-sm p-2 text-sm" placeholder="Ingrediente 1, Ingrediente 2..."></textarea>
@@ -591,6 +593,7 @@ document.getElementById('form-entity').onsubmit = async (e) => {
 </body>
 
 </html>
+
 
 
 
