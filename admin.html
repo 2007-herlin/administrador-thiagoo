@@ -204,20 +204,44 @@
                 <input type="hidden" id="entity-type" value="producto"> <!-- producto | receta -->
 
                 <!-- FIELDS: PRODUCT -->
-                <div id="fields-producto" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nombre</label>
-                        <input type="text" id="p-nombre"
-                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-                            required>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Precio (S/)</label>
-                            <input type="number" step="0.01" id="p-precio"
-                                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-                                required>
-                        </div>
+               <div id="fields-producto" class="space-y-4">
+    <div>
+        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nombre</label>
+        <input type="text" id="p-nombre"
+            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+            required>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Precio (S/)</label>
+            <input type="number" step="0.01" id="p-precio"
+                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                required>
+        </div>
+        <div>
+            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
+            <input type="text" id="p-categoria" placeholder="Ej: Bebidas"
+                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
+                required>
+        </div>
+    </div>
+
+    <div>
+        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen del Producto</label>
+        <div class="space-y-2">
+            <input type="file" id="p-upload" accept="image/*" 
+                class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer border border-dashed border-gray-300 p-1">
+            
+            <input type="text" id="p-imagen" placeholder="O pega el link (URL) aquí"
+                class="w-full border border-gray-300 rounded-sm p-2 text-sm outline-none focus:border-brand-green">
+        </div>
+    </div>
+
+    <div class="flex items-center gap-2 bg-yellow-50 p-2 rounded-sm border border-yellow-100">
+        <input type="checkbox" id="p-oferta" class="w-4 h-4 accent-brand-green">
+        <label for="p-oferta" class="text-sm font-bold text-yellow-700">¿Poner este producto en oferta?</label>
+    </div>
+</div>
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
                             <select id="p-categoria"
@@ -511,74 +535,104 @@
             }
         }
 
-        document.getElementById('form-entity').onsubmit = async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('entity-id').value;
-            const type = document.getElementById('entity-type').value;
-            const table = type === 'producto' ? 'productos' : 'recetas';
+       // --- 1. FUNCIÓN PARA SUBIR IMÁGENES AL STORAGE ---
+async function uploadImage(file, bucket) {
+    const fileName = `${Date.now()}-${file.name}`;
+    
+    // Subir el archivo
+    const { data, error } = await client.storage
+        .from(bucket)
+        .upload(fileName, file);
 
-            let payload = {};
+    if (error) throw error;
 
-            if (type === 'producto') {
-                let cat = document.getElementById('p-categoria').value;
-                const isOffer = document.getElementById('p-oferta').checked;
-                
-                // LÓGICA DE CATEGORÍA Y OFERTA CORREGIDA
-                if (isOffer) {
-                    // Si marcaste la casilla y no dice oferta, se lo ponemos
-                    if (!cat.toLowerCase().includes('oferta')) {
-                        cat += ' - Oferta';
-                    }
-                } else {
-                    // SI DESMARCASTE LA CASILLA, limpiamos el texto " - Oferta"
-                    cat = cat.replace(/\s*-\s*Oferta/i, '').replace(/Oferta/i, '').trim();
-                }
+    // Obtener la URL pública para guardarla en la tabla
+    const { data: publicUrlData } = client.storage
+        .from(bucket)
+        .getPublicUrl(fileName);
 
-                payload = {
-                    nombre: document.getElementById('p-nombre').value,
-                    precio: parseFloat(document.getElementById('p-precio').value),
-                    categoria: cat,
-                    imagen: document.getElementById('p-imagen').value
-                };
-            } else {
-                // RECETA
-                const ing = document.getElementById('r-ingredientes').value.split(',').map(s => s.trim()).filter(s => s);
-                const pasos = document.getElementById('r-pasos').value.split('|').map(s => s.trim()).filter(s => s);
+    return publicUrlData.publicUrl;
+}
 
-                payload = {
-                    titulo: document.getElementById('r-titulo').value,
-                    categoria: document.getElementById('r-categoria').value,
-                    tiempo: document.getElementById('r-tiempo').value,
-                    porciones: document.getElementById('r-porciones').value,
-                    imagen_url: document.getElementById('r-imagen').value,
-                    ingredientes: ing,
-                    pasos: pasos
-                };
-            }
+// --- 2. EL PROCESO DE GUARDADO (SUBIDA + BASE DE DATOS) ---
+document.getElementById('form-entity').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = e.submitter;
+    const originalBtnText = btn.innerText;
+    
+    btn.disabled = true;
+    btn.innerText = "Procesando...";
 
-            // GUARDAR EN SUPABASE
-            try {
-                if (id) {
-                    const { error } = await client.from(table).update(payload).eq('id', id);
-                    if (error) throw error;
-                } else {
-                    const { error } = await client.from(table).insert([payload]);
-                    if (error) throw error;
-                }
-                closeModal();
-                // Recargar datos
-                if (type === 'producto') {
-                    await loadProducts();
-                    renderOffers(); // Forzar render de ofertas
-                } else {
-                    await loadRecipes();
-                }
+    try {
+        const id = document.getElementById('entity-id').value;
+        const type = document.getElementById('entity-type').value;
+        const table = type === 'producto' ? 'productos' : 'recetas';
 
-            } catch (err) {
-                alert("Error al guardar: " + err.message);
-            }
+        // Lógica de Imagen: Prioriza el archivo de galería, si no, usa el URL de texto
+        let finalImageUrl = document.getElementById(type === 'producto' ? 'p-imagen' : 'r-imagen').value;
+        const fileInput = document.getElementById(type === 'producto' ? 'p-upload' : 'r-upload');
+
+        if (fileInput.files.length > 0) {
+            btn.innerText = "Subiendo imagen...";
+            const bucket = type === 'producto' ? 'fotos_productos' : 'fotos_recetas';
+            finalImageUrl = await uploadImage(fileInput.files[0], bucket);
         }
 
+        if (!finalImageUrl) {
+            throw new Error("Por favor, selecciona una imagen o pega un URL.");
+        }
+
+        let payload = {};
+        if (type === 'producto') {
+            let cat = document.getElementById('p-categoria').value;
+            const isOffer = document.getElementById('p-oferta').checked;
+            
+            // Validar etiqueta de oferta
+            if (isOffer && !cat.toLowerCase().includes('oferta')) {
+                cat += ' - Oferta';
+            } else if (!isOffer) {
+                cat = cat.replace(/\s*-\s*Oferta/i, '').trim();
+            }
+
+            payload = {
+                nombre: document.getElementById('p-nombre').value,
+                precio: parseFloat(document.getElementById('p-precio').value),
+                categoria: cat,
+                imagen: finalImageUrl 
+            };
+        } else {
+            const ing = document.getElementById('r-ingredientes').value.split(',').map(s => s.trim()).filter(s => s);
+            const pasos = document.getElementById('r-pasos').value.split('|').map(s => s.trim()).filter(s => s);
+            
+            payload = {
+                titulo: document.getElementById('r-titulo').value,
+                categoria: document.getElementById('r-categoria').value,
+                tiempo: document.getElementById('r-tiempo').value,
+                porciones: document.getElementById('r-porciones').value,
+                imagen_url: finalImageUrl,
+                ingredientes: ing,
+                pasos: pasos
+            };
+        }
+
+        // GUARDAR O ACTUALIZAR
+        const { error } = id 
+            ? await client.from(table).update(payload).eq('id', id)
+            : await client.from(table).insert([payload]);
+
+        if (error) throw error;
+
+        closeModal();
+        // Recargar las tablas para ver los cambios
+        if (type === 'producto') await loadProducts(); else await loadRecipes();
+
+    } catch (err) {
+        alert("Error: " + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = originalBtnText;
+    }
+};
         window.deleteItem = async function (table, id) {
             if (!confirm("¿Eliminar este item permanentemente?")) return;
             try {
@@ -594,5 +648,6 @@
 </body>
 
 </html>
+
 
 
