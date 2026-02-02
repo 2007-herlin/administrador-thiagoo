@@ -436,6 +436,7 @@
         }
 
         // CRUD ACTIONS
+       // --- COPIA DESDE AQUÍ ---
         window.openModal = function (type) {
             const targetType = type || (activeTab === 'recetas' ? 'receta' : 'producto');
 
@@ -450,13 +451,15 @@
             document.getElementById('fields-receta').classList.add('hidden');
             document.getElementById(`fields-${targetType}`).classList.remove('hidden');
 
-            // Req Attributes
-            const pInputs = document.querySelectorAll('#fields-producto input');
-            const rInputs = document.querySelectorAll('#fields-receta input');
+            // Req Attributes - CORREGIDO: Excluye el checkbox de ser obligatorio
+            const pInputs = document.querySelectorAll('#fields-producto input:not([type="checkbox"])');
+            const rInputs = document.querySelectorAll('#fields-receta input, #fields-receta textarea');
 
             if (targetType === 'producto') {
                 pInputs.forEach(i => i.required = true);
                 rInputs.forEach(i => i.required = false);
+                // Forzamos que el checkbox de oferta nunca sea requerido para poder desmarcarlo
+                document.getElementById('p-oferta').required = false;
             } else {
                 pInputs.forEach(i => i.required = false);
                 rInputs.forEach(i => i.required = true);
@@ -470,6 +473,7 @@
         window.closeModal = function () {
             document.getElementById('modal').classList.add('hidden-modal');
         }
+
 
         window.editItem = function (type, id) {
             openModal(type);
@@ -577,3 +581,4 @@
 </body>
 
 </html>
+
