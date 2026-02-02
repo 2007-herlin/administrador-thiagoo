@@ -196,67 +196,31 @@
     </main>
 
     <!-- GENERIC MODAL -->
-    <div id="modal" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5);">
-    <div class="bg-white w-full max-w-lg rounded-lg shadow-xl overflow-hidden flex flex-col" style="max-height: 90vh;">
-        
-        <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
-            <h3 id="modal-title" class="font-bold text-lg text-gray-800">Nuevo Item</h3>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-        </div>
-
-        <form id="form-entity" class="p-6 overflow-y-auto space-y-4">
-            <input type="hidden" id="entity-id">
-            <input type="hidden" id="entity-type">
-
-            <div id="fields-producto" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nombre</label>
-                    <input type="text" id="p-nombre" class="w-full border rounded p-2 outline-none focus:border-brand-green">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Precio (S/)</label>
-                        <input type="number" step="0.01" id="p-precio" class="w-full border rounded p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
-                        <input type="text" id="p-categoria" class="w-full border rounded p-2">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen (Archivo o URL)</label>
-                    <input type="file" id="p-upload" accept="image/*" class="w-full text-sm mb-2">
-                    <input type="text" id="p-imagen" placeholder="O pega el link aquí" class="w-full border rounded p-2 text-sm">
-                </div>
-                <div class="flex items-center gap-2 bg-yellow-50 p-2 rounded border border-yellow-100">
-                    <input type="checkbox" id="p-oferta" class="w-4 h-4">
-                    <label for="p-oferta" class="text-sm font-bold text-yellow-700">¿Es una oferta?</label>
-                </div>
+   <div id="modal" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-content bg-white w-full max-w-lg rounded-lg shadow-xl overflow-hidden flex flex-col" style="max-height: 90vh;">
+            
+            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-lg text-gray-800 font-heading">Nuevo Item</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
 
-            <div id="fields-receta" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Título</label>
-                    <input type="text" id="r-titulo" class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen de Receta</label>
-                    <input type="file" id="r-upload" accept="image/*" class="w-full text-sm mb-2">
-                    <input type="text" id="r-imagen" placeholder="URL de imagen" class="w-full border rounded p-2 text-sm">
-                </div>
-                </div>
+            <form id="form-entity" class="p-6 overflow-y-auto space-y-4">
+                <input type="hidden" id="entity-id">
+                <input type="hidden" id="entity-type">
 
-            <div class="pt-4 flex gap-3">
-                <button type="button" onclick="closeModal()" class="flex-1 py-2 bg-gray-100 text-gray-600 rounded font-bold">Cancelar</button>
-                <button type="submit" class="flex-1 py-2 bg-brand-green text-white rounded font-bold hover:opacity-90">GUARDAR</button>
-            </div>
-        </form>
-    </div>
-</div>
+                <div id="fields-producto" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nombre</label>
+                        <input type="text" id="p-nombre" class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Precio (S/)</label>
+                            <input type="number" step="0.01" id="p-precio" class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green">
+                        </div>
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
-                            <select id="p-categoria"
-                                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green bg-white">
+                            <select id="p-categoria" class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green bg-white">
                                 <option value="Bebidas">Bebidas</option>
                                 <option value="Abarrotes">Abarrotes</option>
                                 <option value="Frutas">Frutas</option>
@@ -269,30 +233,25 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen URL</label>
-                        <input type="text" id="p-imagen"
-                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-                            required placeholder="https://...">
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen (Archivo o URL)</label>
+                        <input type="file" id="p-upload" accept="image/*" class="w-full text-sm mb-2">
+                        <input type="text" id="p-imagen" placeholder="O pega el link (URL) aquí" class="w-full border border-gray-300 rounded-sm p-2 text-sm outline-none focus:border-brand-green">
                     </div>
-                    <div class="flex items-center gap-2 pt-2">
-                        <input type="checkbox" id="p-oferta"
-                            class="w-4 h-4 text-brand-green rounded border-gray-300 focus:ring-brand-green">
-                        <label for="p-oferta" class="text-sm font-bold text-gray-700">Marcar como Oferta</label>
+                    <div class="flex items-center gap-2 bg-yellow-50 p-2 rounded border border-yellow-100">
+                        <input type="checkbox" id="p-oferta" class="w-4 h-4 text-brand-green rounded border-gray-300 focus:ring-brand-green">
+                        <label for="p-oferta" class="text-sm font-bold text-yellow-700">Marcar como Oferta</label>
                     </div>
                 </div>
 
-                <!-- FIELDS: RECETA -->
                 <div id="fields-receta" class="space-y-4 hidden">
                     <div>
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Título Receta</label>
-                        <input type="text" id="r-titulo"
-                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green">
+                        <input type="text" id="r-titulo" class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
-                            <select id="r-categoria"
-                                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green bg-white">
+                            <select id="r-categoria" class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green bg-white">
                                 <option value="Criollo">Criollo</option>
                                 <option value="Postre">Postre</option>
                                 <option value="Bebida">Bebida</option>
@@ -303,49 +262,38 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tiempo</label>
-                                <input type="text" id="r-tiempo"
-                                    class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-                                    placeholder="Ej. 45 min">
+                                <input type="text" id="r-tiempo" class="w-full border border-gray-300 rounded-sm p-2 text-xs" placeholder="45 min">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Porciones</label>
-                                <input type="text" id="r-porciones"
-                                    class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-                                    placeholder="Ej. 4 p.">
+                                <input type="text" id="r-porciones" class="w-full border border-gray-300 rounded-sm p-2 text-xs" placeholder="4 p.">
                             </div>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen URL</label>
-                        <input type="text" id="r-imagen"
-                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-                            placeholder="https://...">
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen de Receta</label>
+                        <input type="file" id="r-upload" accept="image/*" class="w-full text-sm mb-2">
+                        <input type="text" id="r-imagen" placeholder="URL de imagen" class="w-full border border-gray-300 rounded-sm p-2 text-sm outline-none focus:border-brand-green">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Ingredientes (Separados por
-                            coma)</label>
-                        <textarea id="r-ingredientes" rows="3"
-                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-                            placeholder="Arroz, Pollo, Ajo..."></textarea>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Ingredientes (Comas)</label>
+                        <textarea id="r-ingredientes" rows="2" class="w-full border border-gray-300 rounded-sm p-2 text-sm"></textarea>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Pasos (Separados por |
-                            )</label>
-                        <textarea id="r-pasos" rows="3"
-                            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-                            placeholder="Lavar arroz | Cocinar pollo | Servir..."></textarea>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Pasos (Separar con | )</label>
+                        <textarea id="r-pasos" rows="2" class="w-full border border-gray-300 rounded-sm p-2 text-sm"></textarea>
                     </div>
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-brand-green text-white py-3 rounded-sm font-bold uppercase hover:bg-green-600 transition-colors shadow-lg">
-                    Guardar
-                </button>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-sm font-bold uppercase text-xs">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-brand-green text-white py-3 rounded-sm font-bold uppercase text-xs hover:bg-green-600 transition-colors shadow-lg">
+                        Guardar
+                    </button>
+                </div>
             </form>
         </div>
     </div>
-
-
     <script>
         // INIT SUPABASE
         const client = supabase.createClient('https://yvyrbmlzlfrqatxwfemm.supabase.co', 'sb_publishable_eSJ74_4UWZLS-YX3l5RfRQ_NptwqBGG');
@@ -659,6 +607,7 @@ document.getElementById('form-entity').onsubmit = async (e) => {
 </body>
 
 </html>
+
 
 
 
