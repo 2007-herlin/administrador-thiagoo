@@ -37,46 +37,52 @@
         }
     </script>
     <style>
-        body {
-            font-family: 'Open Sans', sans-serif;
-            background-color: #f3f4f6;
-        }
+    body {
+        font-family: 'Open Sans', sans-serif;
+        background-color: #f3f4f6;
+    }
 
-        h1,
-        h2,
-        h3 {
-            font-family: 'Raleway', sans-serif;
-        }
+    h1, h2, h3 {
+        font-family: 'Raleway', sans-serif;
+    }
 
-        .nav-item.active {
-            background-color: #84c225;
-            color: white;
-            font-weight: 700;
-        }
+    .nav-item.active {
+        background-color: #84c225;
+        color: white;
+        font-weight: 700;
+    }
 
-        .nav-item:hover:not(.active) {
-            background-color: #f0fdf4;
-            color: #84c225;
-        }
+    .nav-item:hover:not(.active) {
+        background-color: #f0fdf4;
+        color: #84c225;
+    }
 
-        /* Modal Transitions */
-        .modal {
-            transition: opacity 0.2s ease-in-out;
-        }
+    /* --- MODAL FIX --- */
+    #modal {
+        transition: all 0.3s ease;
+        background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente */
+        display: flex; /* Para centrar el contenido */
+    }
 
-        .modal-content {
-            transition: transform 0.2s ease-in-out;
-        }
+    /* Esta clase es la que hace que el modal desaparezca por completo */
+    .hidden-modal {
+        display: none !important; 
+        opacity: 0;
+        pointer-events: none;
+    }
 
-        .hidden-modal {
-            opacity: 0;
-            pointer-events: none;
-        }
+    .modal-content {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        transform: scale(1);
+        transition: transform 0.3s ease;
+    }
 
-        .hidden-modal .modal-content {
-            transform: scale(0.95);
-        }
-    </style>
+    .hidden-modal .modal-content {
+        transform: scale(0.9);
+    }
+</style>
 </head>
 
 <body class="text-gray-700 h-screen flex overflow-hidden">
@@ -190,56 +196,61 @@
     </main>
 
     <!-- GENERIC MODAL -->
-    <div id="modal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden-modal modal">
-        <div class="bg-white w-full max-w-lg rounded-lg shadow-2xl overflow-hidden modal-content m-4">
-            <div class="bg-brand-dark text-white p-4 flex justify-between items-center">
-                <h3 id="modal-title" class="font-bold text-lg">Nuevo Item</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i
-                        class="ph-bold ph-x text-xl"></i></button>
+    <div id="modal" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5);">
+    <div class="bg-white w-full max-w-lg rounded-lg shadow-xl overflow-hidden flex flex-col" style="max-height: 90vh;">
+        
+        <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+            <h3 id="modal-title" class="font-bold text-lg text-gray-800">Nuevo Item</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+
+        <form id="form-entity" class="p-6 overflow-y-auto space-y-4">
+            <input type="hidden" id="entity-id">
+            <input type="hidden" id="entity-type">
+
+            <div id="fields-producto" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nombre</label>
+                    <input type="text" id="p-nombre" class="w-full border rounded p-2 outline-none focus:border-brand-green">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Precio (S/)</label>
+                        <input type="number" step="0.01" id="p-precio" class="w-full border rounded p-2">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
+                        <input type="text" id="p-categoria" class="w-full border rounded p-2">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen (Archivo o URL)</label>
+                    <input type="file" id="p-upload" accept="image/*" class="w-full text-sm mb-2">
+                    <input type="text" id="p-imagen" placeholder="O pega el link aquí" class="w-full border rounded p-2 text-sm">
+                </div>
+                <div class="flex items-center gap-2 bg-yellow-50 p-2 rounded border border-yellow-100">
+                    <input type="checkbox" id="p-oferta" class="w-4 h-4">
+                    <label for="p-oferta" class="text-sm font-bold text-yellow-700">¿Es una oferta?</label>
+                </div>
             </div>
 
-            <form id="form-entity" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-                <input type="hidden" id="entity-id">
-                <input type="hidden" id="entity-type" value="producto"> <!-- producto | receta -->
+            <div id="fields-receta" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Título</label>
+                    <input type="text" id="r-titulo" class="w-full border rounded p-2">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen de Receta</label>
+                    <input type="file" id="r-upload" accept="image/*" class="w-full text-sm mb-2">
+                    <input type="text" id="r-imagen" placeholder="URL de imagen" class="w-full border rounded p-2 text-sm">
+                </div>
+                </div>
 
-                <!-- FIELDS: PRODUCT -->
-               <div id="fields-producto" class="space-y-4">
-    <div>
-        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nombre</label>
-        <input type="text" id="p-nombre"
-            class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-            required>
-    </div>
-    <div class="grid grid-cols-2 gap-4">
-        <div>
-            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Precio (S/)</label>
-            <input type="number" step="0.01" id="p-precio"
-                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-                required>
-        </div>
-        <div>
-            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Categoría</label>
-            <input type="text" id="p-categoria" placeholder="Ej: Bebidas"
-                class="w-full border border-gray-300 rounded-sm p-2 outline-none focus:border-brand-green"
-                required>
-        </div>
-    </div>
-
-    <div>
-        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Imagen del Producto</label>
-        <div class="space-y-2">
-            <input type="file" id="p-upload" accept="image/*" 
-                class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer border border-dashed border-gray-300 p-1">
-            
-            <input type="text" id="p-imagen" placeholder="O pega el link (URL) aquí"
-                class="w-full border border-gray-300 rounded-sm p-2 text-sm outline-none focus:border-brand-green">
-        </div>
-    </div>
-
-    <div class="flex items-center gap-2 bg-yellow-50 p-2 rounded-sm border border-yellow-100">
-        <input type="checkbox" id="p-oferta" class="w-4 h-4 accent-brand-green">
-        <label for="p-oferta" class="text-sm font-bold text-yellow-700">¿Poner este producto en oferta?</label>
+            <div class="pt-4 flex gap-3">
+                <button type="button" onclick="closeModal()" class="flex-1 py-2 bg-gray-100 text-gray-600 rounded font-bold">Cancelar</button>
+                <button type="submit" class="flex-1 py-2 bg-brand-green text-white rounded font-bold hover:opacity-90">GUARDAR</button>
+            </div>
+        </form>
     </div>
 </div>
                         <div>
@@ -648,6 +659,7 @@ document.getElementById('form-entity').onsubmit = async (e) => {
 </body>
 
 </html>
+
 
 
 
